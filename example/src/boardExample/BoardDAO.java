@@ -55,28 +55,46 @@ public class BoardDAO {
 		}
 		return affected;
 	}
-
-	private void close(Connection conn, PreparedStatement st) {
-		
-		if(st != null){
-			try {
-				st.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	
+	public ArrayList<BoardDTO> boardList(int begin, int end){
+		ArrayList<BoardDTO> list = new ArrayList<BoardDTO>();
+		Connection conn = null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		// 제일안쪽 select : 정렬위해서
+		// 중간 select : rownum, 끝 글번호 위해서
+		// 바깥 select : 시작글 번호 위해서
+		String sql = 
+				"SELECT * FROM (SELECT rownum as rn, A.* "
+				+ "FROM (SELECT * FROM board ORDER BY num DESC) A WHERE rownum <= ?) "
+				+ "WHERE rn >= ?";
+		try{
+			conn = getConn();
+			st = conn.prepareStatement(sql);
+			st.setInt(1, end);
+			st.setInt(2, begin);
+			rs = st.executeQuery();
+			while(rs.next()){
+				BoardDTO dto = new BoardDTO();
+				dto.setNum(rs.getInt("num"));
+				dto.setTitle(rs.getString("title"));
+				dto.setWriter(rs.getString("writer"));
+				dto.setPwd(rs.getString("pwd"));
+				dto.setContent(rs.getString("content"));
+				dto.setRegdate(rs.getDate("regdate"));
+				dto.setHit(rs.getInt("hit"));
+				list.add(dto);
 			}
+		}catch(Exception e){
+			System.out.println("boardList 예외 발생");
+		}finally{
+			close(rs, conn, st);
 		}
-		if(conn!=null){
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		return list;
 	}
 	
-	public ArrayList<BoardDTO> boardList(){
+	// 페이징 처리 안된 boardList메소드
+	/*public ArrayList<BoardDTO> boardList(){
 		ArrayList<BoardDTO> list = new ArrayList<BoardDTO>();
 		Connection conn = null;
 		PreparedStatement st = null;
@@ -107,18 +125,30 @@ public class BoardDAO {
 			
 		}
 		return list;
-	}
+	}*/
 
-	private void close(ResultSet rs, Connection conn, PreparedStatement st) {
-		if(rs!=null){
-			try {
-				rs.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	// 글의 수 얻기
+	public int boardCount(){
+		int cnt=0;
+		Connection conn = null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		String sql = "SELECT count(*) cnt FROM board";
+		try{
+			conn = getConn();
+			st = conn.prepareStatement(sql);
+			rs = st.executeQuery();
+			if(rs.next()){
+				cnt = rs.getInt("cnt");
 			}
+		}catch(Exception e){
+			System.out.println("boardCount 예외발생.");
+			e.printStackTrace();
+		}finally{
+			close(rs, conn, st);
 		}
-		close(conn, st);
+		
+		return cnt;
 	}
 	
 	// 글 하나 읽기 : select
@@ -215,5 +245,37 @@ public class BoardDAO {
 			close(conn, st);
 		}
 		return affected;
+	}
+	
+	private void close(Connection conn, PreparedStatement st) {
+		
+		if(st != null){
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(conn!=null){
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void close(ResultSet rs, Connection conn, PreparedStatement st) {
+		if(rs!=null){
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		close(conn, st);
 	}
 }

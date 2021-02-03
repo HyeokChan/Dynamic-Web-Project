@@ -2,7 +2,9 @@
     pageEncoding="UTF-8"%>
 <%@ page import="boardExample.*" %>
 <%
-	String strNum = request.getParameter("num");
+	String strPg = request.getParameter("pg"); // 페이지 번호받기
+	int pg = Integer.parseInt(strPg);
+	String strNum = request.getParameter("num"); // 글번호 받기
 	int num = Integer.parseInt(strNum);
 	BoardDAO boardDAO = new BoardDAO();
 	boardDAO.boardUpdateHit(num);
@@ -19,7 +21,7 @@
 	function go_update(){
 		//alert("alert1")
 		// 주소표시줄 : location, 자바스크립트를 이용하여 주소를 바꾸는 방법
-		location.href="updateform.jsp?num=<%=dto.getNum()%>";
+		location.href="updateform.jsp?num=<%=dto.getNum()%>&pg=<%=pg%>";
 	}
 	function go_delete(){
 		// 자바스크립트에서 아이디로 요소를 찾는다.
@@ -80,6 +82,7 @@
 					<input type="button" value="삭제" onclick="go_delete()">
 				</span>
 				<form action="delete.jsp" method="post" id="form1" name="form1" style="display:inline; display:none">
+					<input type="hidden" name="pg" value="<%=pg%>">
 					<input type="hidden" name="num" value="<%=dto.getNum()%>">
 					비밀번호 : <input type="password" name="pwd" size="12" maxlength="50">
 					<!-- onclick del() 함수에서 submit 하면 여기서 정의한 delete.jsp로 간다 -->

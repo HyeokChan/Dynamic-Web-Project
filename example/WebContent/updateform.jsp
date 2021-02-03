@@ -2,6 +2,8 @@
     pageEncoding="UTF-8"%>
 <%@ page import="boardExample.*" %>
 <%
+	String strPg = request.getParameter("pg"); // 페이지 번호받기
+	int pg = Integer.parseInt(strPg);
 	String strNum = request.getParameter("num");
 	int num = Integer.parseInt(strNum);
 	BoardDAO boardDAO = new BoardDAO();
@@ -51,6 +53,7 @@
 		<tr>
 			<th>제목</th>
 			<td>
+				<input type="hidden" name="pg" value="<%=pg%>">
 				<input type="hidden" name="num" value="<%=dto.getNum()%>">
 				<input type="text" name="title" value="<%=dto.getTitle()%>">
 			</td>

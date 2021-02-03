@@ -8,6 +8,7 @@
 <body>
 <h1>index page</h1>
 <a href="writeform.jsp">글 쓰기</a><br>
-<a href="list.jsp">리스트</a>
+<a href="list.jsp?pg=1">리스트</a><br>
+<a href="write300.jsp">글 300개 저장</a>
 </body>
 </html>
